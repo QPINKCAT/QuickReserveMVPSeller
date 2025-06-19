@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @NoRepositoryBean
 public interface ActiveRepository<T, ID> extends JpaRepository<T, ID> {
-    T findByIdAndActive(ID id, Boolean active);
+    Optional<T> findByPkAndActive(ID pk, Boolean active);
     Page<T> findAllByActive(Pageable pageable, Boolean active);
     List<T> findAllByActive(Boolean active);
 }

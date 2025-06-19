@@ -32,7 +32,7 @@ public abstract class BaseEntity implements Serializable {
     @LastModifiedDate
     private Long updatedAt = Instant.now().toEpochMilli();
 
-    @Column(columnDefinition = "default true")
+    @Column(columnDefinition = "boolean default true")
     private Boolean active = true;
 
     @Override
