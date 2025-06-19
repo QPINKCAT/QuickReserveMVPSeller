@@ -1,6 +1,6 @@
 package com.pinkcat.quick_reserve_seller.config;
 
-import com.pinkcat.quickreservemvp.common.model.BaseResponse;
+import com.pinkcat.quick_reserve_seller.common.model.BaseResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;

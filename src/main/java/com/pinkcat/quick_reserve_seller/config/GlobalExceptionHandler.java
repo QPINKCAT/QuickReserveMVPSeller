@@ -1,7 +1,7 @@
 package com.pinkcat.quick_reserve_seller.config;
 
-import com.pinkcat.quickreservemvp.common.exceptions.PinkCatException;
-import com.pinkcat.quickreservemvp.common.model.BaseResponse;
+import com.pinkcat.quick_reserve_seller.common.exceptions.PinkCatException;
+import com.pinkcat.quick_reserve_seller.common.model.BaseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

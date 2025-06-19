@@ -1,7 +1,7 @@
 package com.pinkcat.quick_reserve_seller.common.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.pinkcat.quickreservemvp.common.exceptions.PinkCatException;
+import com.pinkcat.quick_reserve_seller.common.exceptions.PinkCatException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
