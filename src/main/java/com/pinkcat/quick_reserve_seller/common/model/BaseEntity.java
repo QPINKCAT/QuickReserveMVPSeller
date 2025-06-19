@@ -24,7 +24,7 @@ public abstract class BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long pk;
 
     @CreatedDate
     private Long createdAt = Instant.now().toEpochMilli();
@@ -43,7 +43,7 @@ public abstract class BaseEntity implements Serializable {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         BaseEntity that = (BaseEntity) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+        return getPk() != null && Objects.equals(getPk(), that.getPk());
     }
 
     @Override

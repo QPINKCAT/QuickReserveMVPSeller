@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class BaseView {
-    Long id;
+    Long pk;
 
     Long createdAt;
     Long updatedAt;
-    Long deletedAt;
+    Boolean active;
 }
