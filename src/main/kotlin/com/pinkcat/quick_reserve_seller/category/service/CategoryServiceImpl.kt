@@ -1,5 +1,6 @@
 package com.pinkcat.quick_reserve_seller.category.service
 
+import com.pinkcat.quick_reserve_seller.category.dto.CategoryRes
 import com.pinkcat.quick_reserve_seller.category.repository.CategoryRepository
 import org.springframework.stereotype.Service
 
@@ -7,4 +8,9 @@ import org.springframework.stereotype.Service
 class CategoryServiceImpl(
     private val categoryRepository: CategoryRepository
 ) : CategoryService {
+    override fun findAll(): List<CategoryRes> {
+        return categoryRepository.findAllByActive(true).map {
+            CategoryRes(it)
+        }
+    }
 }
