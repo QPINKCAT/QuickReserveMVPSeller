@@ -1,12 +1,14 @@
 package com.pinkcat.quick_reserve_seller.product.entity
 
+import com.pinkcat.quick_reserve_seller.categoryProduct.entity.CategoryProductEntity
 import com.pinkcat.quick_reserve_seller.common.model.BaseEntity
+import com.pinkcat.quick_reserve_seller.discount.entity.DiscountEntity
+import com.pinkcat.quick_reserve_seller.hotDeal.model.HotDealProductEntity
+import com.pinkcat.quick_reserve_seller.product.dto.ProductReq
 import com.pinkcat.quick_reserve_seller.seller.entity.SellerEntity
-import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import lombok.Data
+import org.hibernate.annotations.BatchSize
 
 @Entity
 @Data
@@ -14,14 +16,58 @@ import lombok.Data
 class ProductEntity(
     @ManyToOne(fetch = FetchType.LAZY)
     val seller: SellerEntity,
-    val name: String,
-    val description: String,
-    val price: Int,
-    val stock: Int?,
+    var name: String,
+    var description: String,
+    var price: Int,
+    var stock: Int?,
     val avgRating: Double,
     val reviewCount: Int,
-    val status: ProductStatus,
-) : BaseEntity()
+    var status: ProductStatus,
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    var discount: DiscountEntity?,
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    @BatchSize(size = 10)
+    val categoryProducts: MutableList<CategoryProductEntity>,
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OrderBy("display_oder asc")
+    @BatchSize(size = 10)
+    val images: MutableList<ProductImageEntity>,
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    val hotDealProducts: MutableList<HotDealProductEntity>,
+) : BaseEntity() {
+    constructor(seller: SellerEntity, req: ProductReq) : this(
+        seller = seller,
+        name = req.name,
+        description = req.description,
+        price = req.price,
+        stock = req.stock,
+        avgRating = 0.0,
+        reviewCount = 0,
+        status = req.status,
+        discount = null,
+        categoryProducts = mutableListOf(),
+        images = mutableListOf(),
+        hotDealProducts = mutableListOf(),
+    )
+
+    fun update(req: ProductReq) {
+        this.name = req.name
+        this.description = req.description
+        this.price = req.price
+        this.stock = req.stock
+        this.status = req.status
+
+        if (req.discount != null) {
+            this.discount?.update(req.discount) ?: run {
+                this.discount = DiscountEntity(this, req.discount)
+            }
+        } else this.discount = null
+    }
+}
 
 enum class ProductStatus {
     ON, OFF;

@@ -11,4 +11,8 @@ public class PinkCatErrorFactory {
     public static ResponseStatusException unauthorized() {
         return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
     }
+
+    public static ResponseStatusException forbidden() {
+        return new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
+    }
 }
