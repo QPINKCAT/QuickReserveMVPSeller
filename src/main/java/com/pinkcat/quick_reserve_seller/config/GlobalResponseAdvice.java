@@ -25,9 +25,29 @@ public class GlobalResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+        System.out.println("]-----] Advice [-----[");
+        if (body instanceof ResponseEntity<?> responseEntity) {
+            Object inner = responseEntity.getBody();
+
+            if (inner instanceof BaseResponse) return responseEntity;
+
+            BaseResponse<Object> wrapped = new BaseResponse<>(inner);
+            return ResponseEntity
+                    .status(responseEntity.getStatusCode())
+                    .headers(responseEntity.getHeaders())
+                    .contentType(selectedContentType)
+                    .body(wrapped);
+        }
+
+        System.out.println("]-----] Check Response Entity [-----[");
+
         if (body instanceof LinkedHashMap<?, ?> && ((LinkedHashMap<String, ?>) body).containsKey("error")) return body;
 
+        System.out.println("]-----] Check Response Error [-----[");
+
         if (body instanceof BaseResponse) return body;
+
+        System.out.println("]-----] Check Response [-----[");
 
         return new BaseResponse<>(body);
     }
