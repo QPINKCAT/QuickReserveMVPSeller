@@ -67,6 +67,12 @@ class ProductEntity(
             }
         } else this.discount = null
     }
+
+    fun delete(): ProductEntity {
+        this.active = false
+
+        return this
+    }
 }
 
 enum class ProductStatus {

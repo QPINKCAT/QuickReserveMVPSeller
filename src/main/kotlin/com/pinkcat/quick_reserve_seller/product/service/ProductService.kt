@@ -11,6 +11,7 @@ interface ProductService {
     fun findProductList(categoryPk: Long?, page: Int, size: Int): Page<ProductListRes>
     fun findProduct(productPk: Long): ProductRes
     fun updateProduct(sellerPk: Long, productPk: Long, req: ProductReq): Boolean
+    fun deleteProduct(sellerPk: Long, productPk: Long): Boolean
 
     fun getPresignedUrl(req: PresignedUrlReq): String
 }

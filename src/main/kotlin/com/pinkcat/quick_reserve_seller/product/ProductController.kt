@@ -34,6 +34,11 @@ class ProductController(
         return ResponseEntity.ok(productService.updateProduct(sellerPk, productPk, req))
     }
 
+    @DeleteMapping("/{productPk}")
+    fun deleteProduct(@PathVariable productPk: Long, sellerPk: Long): ResponseEntity<Boolean> {
+        return ResponseEntity.ok(productService.deleteProduct(sellerPk, productPk))
+    }
+
     @PostMapping("/presigned-url")
     fun getPresignedUrl(@RequestBody req: PresignedUrlReq): Any {
         return ResponseEntity.ok(productService.getPresignedUrl(req))
