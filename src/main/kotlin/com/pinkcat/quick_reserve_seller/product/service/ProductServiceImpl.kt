@@ -148,10 +148,10 @@ class ProductServiceImpl(
             if (categoryRepository.existsByTopCategoryPkAndActive(categoryPk, true))
                 throw CategoryNotTopCategoryException("]-----] ProductServiceImpl::productReqValidCheck Category Have Leaf(req: $req) [-----[")
         }
-        if (req.price < 0 || (req.stock != null && req.stock < 0))
+        if (req.price <= 0 || (req.stock != null && req.stock < 0))
             throw ProductReqInvalidException("]-----] ProductServiceImpl::productReqValidCheck Product Request Invalid(req: $req) [-----[")
         if (req.discount != null) {
-            if (req.discount.price >= req.price) throw ProductReqInvalidException("]-----] ProductServiceImpl::productReqValidCheck Product Request Invalid(req: $req) [-----[")
+            if (req.discount.price <= 0 || req.discount.price >= req.price) throw ProductReqInvalidException("]-----] ProductServiceImpl::productReqValidCheck Product Request Invalid(req: $req) [-----[")
             if (req.discount.startAt != null && req.discount.startAt < Instant.now().toEpochMilli())
                 throw ProductReqInvalidException("]-----] ProductServiceImpl::productReqValidCheck Product Request Invalid(req: $req) [-----[")
             if (req.discount.endAt != null && req.discount.startAt != null && req.discount.endAt < req.discount.startAt)
