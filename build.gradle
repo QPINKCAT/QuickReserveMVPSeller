@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -8,6 +9,7 @@ plugins {
 	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.22'
 	id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.22'
 	id 'org.jetbrains.kotlin.kapt' version '1.9.22'
+	id 'org.jetbrains.kotlin.plugin.allopen' version '1.9.22'
 	id 'io.freefair.lombok' version "8.4"
 }
 
@@ -59,6 +61,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 
 	testImplementation 'io.mockk:mockk:1.14.4'
+	testImplementation 'io.mockk:mockk-agent-jvm:1.14.4'
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -69,9 +72,18 @@ kapt {
 
 // Kotlin 컴파일 옵션
 tasks.withType(KotlinCompile).configureEach {
-	compilerOptions.setJvmTarget('JVM_21')
+	compilerOptions.setJvmTarget(JvmTarget.JVM_21)
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+allOpen {
+	annotation("jakarta.persistence.Entity")
+	annotation("jakarta.persistence.MappedSuperclass")
+	annotation("jakarta.persistence.Embeddable")
+
+	annotation("org.springframework.stereotype.Component")
+	annotation("org.springframework.transaction.annotation.Transactional")
 }
