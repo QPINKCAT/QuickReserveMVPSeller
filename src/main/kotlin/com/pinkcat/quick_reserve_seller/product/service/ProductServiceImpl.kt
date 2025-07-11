@@ -47,7 +47,7 @@ class ProductServiceImpl(
         val product = productRepository.save(ProductEntity(seller = seller, req = req))
 
         if (req.discount != null) {
-            product.discount = discountRepository.save(
+            discountRepository.save(
                 DiscountEntity(
                     product = product,
                     discountPrice = req.discount.price,

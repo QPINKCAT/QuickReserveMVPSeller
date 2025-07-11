@@ -24,7 +24,9 @@ class DiscountEntity(
         discountPrice = dto.price,
         startAt = dto.startAt,
         endAt = dto.endAt
-    )
+    ) {
+        product.discount = this
+    }
 
     fun update(dto: DiscountDto): DiscountEntity {
         this.discountPrice = dto.price
