@@ -1,7 +1,5 @@
 package com.pinkcat.quick_reserve_seller.product.service
 
-import com.pinkcat.quick_reserve_seller.category.exception.CategoryNotFoundException
-import com.pinkcat.quick_reserve_seller.category.exception.CategoryNotTopCategoryException
 import com.pinkcat.quick_reserve_seller.category.repository.CategoryRepository
 import com.pinkcat.quick_reserve_seller.categoryProduct.entity.CategoryProductEntity
 import com.pinkcat.quick_reserve_seller.categoryProduct.repository.CategoryProductRepository
@@ -15,15 +13,14 @@ import com.pinkcat.quick_reserve_seller.product.dto.ProductReq
 import com.pinkcat.quick_reserve_seller.product.dto.ProductRes
 import com.pinkcat.quick_reserve_seller.product.entity.ProductEntity
 import com.pinkcat.quick_reserve_seller.product.exception.ProductNotFoundException
-import com.pinkcat.quick_reserve_seller.product.exception.ProductReqInvalidException
 import com.pinkcat.quick_reserve_seller.product.repository.ProductRepository
+import com.pinkcat.quick_reserve_seller.product.validation.ProductValidator
 import com.pinkcat.quick_reserve_seller.seller.exception.SellerNotFoundException
 import com.pinkcat.quick_reserve_seller.seller.repository.SellerRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 
 @Service
 class ProductServiceImpl(
@@ -33,11 +30,13 @@ class ProductServiceImpl(
     private val productRepository: ProductRepository,
     private val sellerRepository: SellerRepository,
 
+    private val productValidator: ProductValidator,
+
     private val awsUtil: AwsUtil
 ) : ProductService {
     @Transactional
     override fun createProduct(sellerPk: Long, req: ProductReq) {
-        productReqValidCheck(req)
+        productValidator.createReqValidCheck(req)
 
         val seller = sellerRepository.findByPkAndActive(sellerPk, true)
             .orElseThrow { SellerNotFoundException("]-----] ProductServiceImpl::createProduct Seller Not Found(sellerPk: $sellerPk) [-----[") }
@@ -94,7 +93,7 @@ class ProductServiceImpl(
 
     @Transactional
     override fun updateProduct(sellerPk: Long, productPk: Long, req: ProductReq): Boolean {
-        productReqValidCheck(req)
+        productValidator.updateReqValidCheck(req)
 
         val product = productRepository.findByPkAndActive(productPk, true)
             .orElseThrow { ProductNotFoundException("]-----] ProductServiceImpl::findProduct Product Not Found(productPk: $productPk) [-----[") }
@@ -139,23 +138,5 @@ class ProductServiceImpl(
 
     override fun getPresignedUrl(req: PresignedUrlReq): String {
         return awsUtil.generateUploadUrl(req.name, req.contentType).path
-    }
-
-    fun productReqValidCheck(req: ProductReq) {
-        req.categoryPks.forEach { categoryPk ->
-            if (!categoryRepository.existsByPkAndActive(categoryPk, true))
-                throw CategoryNotFoundException("]-----] ProductServiceImpl::productReqValidCheck Category Not Found(req: $req) [-----[")
-            if (categoryRepository.existsByTopCategoryPkAndActive(categoryPk, true))
-                throw CategoryNotTopCategoryException("]-----] ProductServiceImpl::productReqValidCheck Category Have Leaf(req: $req) [-----[")
-        }
-        if (req.price <= 0 || (req.stock != null && req.stock < 0))
-            throw ProductReqInvalidException("]-----] ProductServiceImpl::productReqValidCheck Product Request Invalid(req: $req) [-----[")
-        if (req.discount != null) {
-            if (req.discount.price <= 0 || req.discount.price >= req.price) throw ProductReqInvalidException("]-----] ProductServiceImpl::productReqValidCheck Product Request Invalid(req: $req) [-----[")
-            if (req.discount.startAt != null && req.discount.startAt < Instant.now().toEpochMilli())
-                throw ProductReqInvalidException("]-----] ProductServiceImpl::productReqValidCheck Product Request Invalid(req: $req) [-----[")
-            if (req.discount.endAt != null && req.discount.startAt != null && req.discount.endAt < req.discount.startAt)
-                throw ProductReqInvalidException("]-----] ProductServiceImpl::productReqValidCheck Product Request Invalid(req: $req) [-----[")
-        }
     }
 }
