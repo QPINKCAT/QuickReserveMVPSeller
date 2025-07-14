@@ -96,7 +96,7 @@ class ProductServiceImpl(
         productValidator.updateReqValidCheck(req)
 
         val product = productRepository.findByPkAndActive(productPk, true)
-            .orElseThrow { ProductNotFoundException("]-----] ProductServiceImpl::findProduct Product Not Found(productPk: $productPk) [-----[") }
+            .orElseThrow { ProductNotFoundException("]-----] ProductServiceImpl::updateProduct Product Not Found(productPk: $productPk) [-----[") }
 
         if (product.seller.pk != sellerPk)
             throw forbidden()
@@ -126,7 +126,7 @@ class ProductServiceImpl(
     @Transactional
     override fun deleteProduct(sellerPk: Long, productPk: Long): Boolean {
         val product = productRepository.findByPkAndActive(productPk, true)
-            .orElseThrow { ProductNotFoundException("]-----] ProductServiceImpl::findProduct Product Not Found(productPk: $productPk) [-----[") }
+            .orElseThrow { ProductNotFoundException("]-----] ProductServiceImpl::deleteProduct Product Not Found(productPk: $productPk) [-----[") }
 
         if (product.seller.pk != sellerPk)
             throw forbidden()
