@@ -1,6 +1,7 @@
 package com.pinkcat.quick_reserve_seller.common.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -24,7 +25,9 @@ public abstract class BaseEntity implements Serializable {
     @LastModifiedDate
     private Long updatedAt = Instant.now().toEpochMilli();
 
-    @Column(columnDefinition = "boolean default true")
+    @Convert(converter = BooleanConverter.class)
+    @Column(columnDefinition = "TINYINT", nullable = false)
+    @ColumnDefault("1")
     private Boolean active = true;
 
     public BaseEntity() {

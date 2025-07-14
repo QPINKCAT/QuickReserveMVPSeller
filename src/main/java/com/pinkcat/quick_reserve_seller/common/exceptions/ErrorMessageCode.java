@@ -3,7 +3,19 @@ package com.pinkcat.quick_reserve_seller.common.exceptions;
 public enum ErrorMessageCode {
 
     SUCCESS(20000, "success"),
-    ERROR(50000, "error");
+    ERROR(50000, "error"),
+
+    // Category Exception - 60000
+    CATEGORY_NOT_FOUND_EXCEPTION(60001, "category_not_found_exception"),
+    CATEGORY_NOT_TOP_CATEGORY_EXCEPTION(60002, "category_not_top_category_exception"),
+
+    // Product Exception - 70000
+    PRODUCT_NOT_FOUND_EXCEPTION(70001, "product_not_found_exception"),
+    PRODUCT_REQUEST_INVALID_EXCEPTION(70002, "product_request_invalid_exception"),
+
+    // Seller Exception - 80000
+    SELLER_NOT_FOUND_EXCEPTION(80001, "seller_not_found_exception"),
+    ;
 
     private final int codeValue;
     private final String message;
