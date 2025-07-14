@@ -52,6 +52,29 @@ class ProductServiceImplTest {
     @Nested
     @DisplayName("상품 생성")
     inner class CreateProduct {
+        private fun baseReq(): ProductReq = ProductReq(
+            categoryPks = listOf(1L, 2L),
+            name = "테스트 상품",
+            description = "테스트 설명",
+            price = 10000,
+            stock = 100,
+            status = ProductStatus.ON,
+            discount = null
+        )
+
+        private fun getSeller(pk: Long = 1): SellerEntity = SellerEntity(
+            name = "seller",
+            password = "password",
+            phoneNumber = "01000000001",
+            email = "seller@gmail.com"
+        ).also { it.pk = pk }
+
+        private fun getCategory(pk: Long = 1, name: String): CategoryEntity = CategoryEntity(
+            categoryName = name,
+            categoryOrder = pk.toInt(),
+            topCategory = null,
+        ).also { it.pk = pk }
+
         @Test
         fun `상품 생성 성공`() {
             val req = baseReq()
