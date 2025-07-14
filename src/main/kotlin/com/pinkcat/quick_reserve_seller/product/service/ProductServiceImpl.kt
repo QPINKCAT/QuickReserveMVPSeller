@@ -125,7 +125,7 @@ class ProductServiceImpl(
 
     @Transactional
     override fun deleteProduct(sellerPk: Long, productPk: Long): Boolean {
-        val product = productRepository.findByPkAndActive(sellerPk, true)
+        val product = productRepository.findByPkAndActive(productPk, true)
             .orElseThrow { ProductNotFoundException("]-----] ProductServiceImpl::findProduct Product Not Found(productPk: $productPk) [-----[") }
 
         if (product.seller.pk != sellerPk)
