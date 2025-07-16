@@ -7,18 +7,17 @@ import com.pinkcat.quick_reserve_seller.common.aws.AwsUtil
 import com.pinkcat.quick_reserve_seller.common.exceptions.PinkCatErrorFactory.forbidden
 import com.pinkcat.quick_reserve_seller.discount.entity.DiscountEntity
 import com.pinkcat.quick_reserve_seller.discount.repository.DiscountRepository
-import com.pinkcat.quick_reserve_seller.product.dto.PresignedUrlReq
-import com.pinkcat.quick_reserve_seller.product.dto.ProductListRes
-import com.pinkcat.quick_reserve_seller.product.dto.ProductReq
-import com.pinkcat.quick_reserve_seller.product.dto.ProductRes
+import com.pinkcat.quick_reserve_seller.product.dto.*
 import com.pinkcat.quick_reserve_seller.product.entity.ProductEntity
 import com.pinkcat.quick_reserve_seller.product.exception.ProductNotFoundException
 import com.pinkcat.quick_reserve_seller.product.repository.ProductRepository
 import com.pinkcat.quick_reserve_seller.product.validation.ProductValidator
+import com.pinkcat.quick_reserve_seller.review.repository.CustomerProductReviewRepository
 import com.pinkcat.quick_reserve_seller.seller.exception.SellerNotFoundException
 import com.pinkcat.quick_reserve_seller.seller.repository.SellerRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,6 +28,7 @@ class ProductServiceImpl(
     private val discountRepository: DiscountRepository,
     private val productRepository: ProductRepository,
     private val sellerRepository: SellerRepository,
+    private val customerProductReviewRepository: CustomerProductReviewRepository,
 
     private val productValidator: ProductValidator,
 
@@ -138,5 +138,16 @@ class ProductServiceImpl(
 
     override fun getPresignedUrl(req: PresignedUrlReq): String {
         return awsUtil.generateUploadUrl(req.name, req.contentType).path
+    }
+
+    @Transactional(readOnly = true)
+    override fun findAllReview(
+        productPk: Long,
+        page: Int,
+        size: Int
+    ): Page<ProductReviewRes> {
+        val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "pk"))
+        return customerProductReviewRepository.findAllByProductPkAndActive(productPk, true, pageable)
+            .map { ProductReviewRes(it) }
     }
 }

@@ -1,9 +1,6 @@
 package com.pinkcat.quick_reserve_seller.product.service
 
-import com.pinkcat.quick_reserve_seller.product.dto.PresignedUrlReq
-import com.pinkcat.quick_reserve_seller.product.dto.ProductListRes
-import com.pinkcat.quick_reserve_seller.product.dto.ProductReq
-import com.pinkcat.quick_reserve_seller.product.dto.ProductRes
+import com.pinkcat.quick_reserve_seller.product.dto.*
 import org.springframework.data.domain.Page
 
 interface ProductService {
@@ -14,4 +11,6 @@ interface ProductService {
     fun deleteProduct(sellerPk: Long, productPk: Long): Boolean
 
     fun getPresignedUrl(req: PresignedUrlReq): String
+
+    fun findAllReview(productPk: Long, page: Int, size: Int): Page<ProductReviewRes>
 }

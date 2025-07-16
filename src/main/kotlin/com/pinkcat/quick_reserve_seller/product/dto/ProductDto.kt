@@ -1,10 +1,12 @@
 package com.pinkcat.quick_reserve_seller.product.dto
 
 import com.pinkcat.quick_reserve_seller.category.dto.CategoryRes
+import com.pinkcat.quick_reserve_seller.customer.model.CustomerEntity
 import com.pinkcat.quick_reserve_seller.discount.dto.DiscountDto
 import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealRes
 import com.pinkcat.quick_reserve_seller.product.entity.ProductEntity
 import com.pinkcat.quick_reserve_seller.product.entity.ProductStatus
+import com.pinkcat.quick_reserve_seller.review.entity.CustomerProductReview
 import kotlin.math.round
 
 data class ProductReq(
@@ -77,3 +79,29 @@ data class PresignedUrlReq(
     val name: String,
     val contentType: String,
 )
+
+data class ProductReviewRes(
+    val customerProductReviewPk: Long,
+    val customer: ReviewCustomerView,
+    val comment: String,
+    val rating: Int,
+    val createdAt: Long
+) {
+    constructor(review: CustomerProductReview) : this(
+        customerProductReviewPk = review.pk,
+        customer = ReviewCustomerView(review.customer),
+        comment = review.comment,
+        rating = review.rating,
+        createdAt = review.createdAt,
+    )
+}
+
+data class ReviewCustomerView(
+    val name: String,
+    val phoneNumber: String,
+) {
+    constructor(customer: CustomerEntity) : this(
+        name = customer.name,
+        phoneNumber = customer.phoneNumber,
+    )
+}

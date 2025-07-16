@@ -5,9 +5,11 @@ import com.pinkcat.quick_reserve_seller.category.repository.CategoryRepository
 import com.pinkcat.quick_reserve_seller.categoryProduct.entity.CategoryProductEntity
 import com.pinkcat.quick_reserve_seller.categoryProduct.repository.CategoryProductRepository
 import com.pinkcat.quick_reserve_seller.common.aws.AwsUtil
+import com.pinkcat.quick_reserve_seller.customer.model.CustomerEntity
 import com.pinkcat.quick_reserve_seller.discount.dto.DiscountDto
 import com.pinkcat.quick_reserve_seller.discount.entity.DiscountEntity
 import com.pinkcat.quick_reserve_seller.discount.repository.DiscountRepository
+import com.pinkcat.quick_reserve_seller.order.model.ProductOrderItemEntity
 import com.pinkcat.quick_reserve_seller.product.dto.ProductReq
 import com.pinkcat.quick_reserve_seller.product.dto.ProductRes
 import com.pinkcat.quick_reserve_seller.product.entity.ProductEntity
@@ -15,6 +17,8 @@ import com.pinkcat.quick_reserve_seller.product.entity.ProductStatus
 import com.pinkcat.quick_reserve_seller.product.exception.ProductNotFoundException
 import com.pinkcat.quick_reserve_seller.product.repository.ProductRepository
 import com.pinkcat.quick_reserve_seller.product.validation.ProductValidator
+import com.pinkcat.quick_reserve_seller.review.entity.CustomerProductReview
+import com.pinkcat.quick_reserve_seller.review.repository.CustomerProductReviewRepository
 import com.pinkcat.quick_reserve_seller.seller.entity.SellerEntity
 import com.pinkcat.quick_reserve_seller.seller.repository.SellerRepository
 import io.mockk.*
@@ -26,6 +30,7 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
@@ -38,6 +43,7 @@ class ProductServiceImplTest {
     private val productRepository = mockk<ProductRepository>()
     private val sellerRepository = mockk<SellerRepository>()
     private val productValidator = mockk<ProductValidator>()
+    private val customerProductReviewRepository = mockk<CustomerProductReviewRepository>()
     private val awsUtil = mockk<AwsUtil>()
     private val productService = ProductServiceImpl(
         categoryRepository,
@@ -45,6 +51,7 @@ class ProductServiceImplTest {
         discountRepository,
         productRepository,
         sellerRepository,
+        customerProductReviewRepository,
         productValidator,
         awsUtil
     )
@@ -388,6 +395,85 @@ class ProductServiceImplTest {
 
             verify(exactly = 1) { productRepository.save(product) }
             assertThat(product.active).isFalse
+        }
+    }
+
+    @Nested
+    inner class FindAllReview {
+        @Test
+        fun `param 전달 검증`() {
+            val productPk = 1L
+            val page = 0
+            val size = 10
+            val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "pk"))
+
+            every {
+                customerProductReviewRepository.findAllByProductPkAndActive(
+                    productPk = productPk,
+                    active = true,
+                    pageable = pageable
+                )
+            } returns Page.empty(pageable)
+
+            productService.findAllReview(productPk, page, size)
+
+            verify(exactly = 1) {
+                customerProductReviewRepository.findAllByProductPkAndActive(
+                    productPk = productPk,
+                    active = true,
+                    pageable = pageable
+                )
+            }
+        }
+
+        @Test
+        fun `DTO 매핑 검증`() {
+            val productPk = 1L
+            val page = 0
+            val size = 10
+            val pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "pk"))
+            val reviews = listOf(
+                getReview(2L),
+                getReview(1L),
+            )
+
+            every {
+                customerProductReviewRepository.findAllByProductPkAndActive(
+                    productPk = productPk,
+                    active = true,
+                    pageable = pageable
+                )
+            } returns PageImpl(reviews, pageable, reviews.size.toLong())
+
+            val result = productService.findAllReview(productPk, page, size)
+
+            assertThat(result.content.size).isEqualTo(reviews.size)
+
+            result.forEachIndexed { index, dto ->
+                val review = reviews[index]
+
+                assertThat(dto.customerProductReviewPk).isEqualTo(review.pk)
+                assertThat(dto.customer.name).isEqualTo(review.customer.name)
+                assertThat(dto.customer.phoneNumber).isEqualTo(review.customer.phoneNumber)
+                assertThat(dto.comment).isEqualTo(review.comment)
+                assertThat(dto.rating).isEqualTo(review.rating)
+                assertThat(dto.createdAt).isEqualTo(review.createdAt)
+            }
+        }
+
+        fun getReview(pk: Long = 1L): CustomerProductReview {
+            val customer = mockk<CustomerEntity>()
+            val productOrderItem = mockk<ProductOrderItemEntity>()
+
+            every { customer.name } returns "name"
+            every { customer.phoneNumber } returns "phoneNumber"
+
+            return CustomerProductReview(
+                customer = customer,
+                orderItem = productOrderItem,
+                rating = 9,
+                comment = "comment$pk"
+            ).also { it.pk = pk }
         }
     }
 

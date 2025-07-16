@@ -1,9 +1,6 @@
 package com.pinkcat.quick_reserve_seller.product
 
-import com.pinkcat.quick_reserve_seller.product.dto.PresignedUrlReq
-import com.pinkcat.quick_reserve_seller.product.dto.ProductListRes
-import com.pinkcat.quick_reserve_seller.product.dto.ProductReq
-import com.pinkcat.quick_reserve_seller.product.dto.ProductRes
+import com.pinkcat.quick_reserve_seller.product.dto.*
 import com.pinkcat.quick_reserve_seller.product.service.ProductService
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
@@ -42,5 +39,14 @@ class ProductController(
     @PostMapping("/presigned-url")
     fun getPresignedUrl(@RequestBody req: PresignedUrlReq): Any {
         return ResponseEntity.ok(productService.getPresignedUrl(req))
+    }
+
+    @GetMapping("/{productPk}/review")
+    fun findAllReview(
+        @PathVariable productPk: Long,
+        @RequestParam page: Int,
+        @RequestParam size: Int
+    ): ResponseEntity<Page<ProductReviewRes>> {
+        return ResponseEntity.ok(productService.findAllReview(productPk, page, size))
     }
 }
