@@ -34,3 +34,8 @@ data class CustomerView(
         phoneNumber = customerEntity.phoneNumber,
     )
 }
+
+data class ProductOrderItemStatusUpdateReq(
+    val pks: List<Long>,
+    val status: List<ProductOrderItemStatus>,
+)

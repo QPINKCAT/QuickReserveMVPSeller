@@ -1,14 +1,12 @@
 package com.pinkcat.quick_reserve_seller.order
 
+import com.pinkcat.quick_reserve_seller.order.dto.ProductOrderItemStatusUpdateReq
 import com.pinkcat.quick_reserve_seller.order.dto.ProductOrderListRes
 import com.pinkcat.quick_reserve_seller.order.model.ProductOrderItemStatus
 import com.pinkcat.quick_reserve_seller.order.service.ProductOrderService
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/product-order")
@@ -29,6 +27,15 @@ class ProductOrderController(
                 page = page,
                 size = size
             )
+        )
+    }
+
+    @PutMapping("/status")
+    fun updateProductOrderItemStatus(
+        @RequestBody req: ProductOrderItemStatusUpdateReq
+    ): ResponseEntity<Unit> {
+        return ResponseEntity.ok(
+            productOrderService.updateProductOrderItemStatus(req)
         )
     }
 }

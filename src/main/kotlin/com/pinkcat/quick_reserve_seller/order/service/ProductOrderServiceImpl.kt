@@ -1,6 +1,9 @@
 package com.pinkcat.quick_reserve_seller.order.service
 
+import com.pinkcat.quick_reserve_seller.order.dto.ProductOrderItemStatusUpdateReq
 import com.pinkcat.quick_reserve_seller.order.dto.ProductOrderListRes
+import com.pinkcat.quick_reserve_seller.order.exception.ProductOrderItemNotFoundException
+import com.pinkcat.quick_reserve_seller.order.exception.ProductOrderItemStatusUpdateReqInvalid
 import com.pinkcat.quick_reserve_seller.order.model.ProductOrderItemStatus
 import org.springframework.data.domain.Page
 import org.springframework.stereotype.Service
@@ -24,5 +27,25 @@ class ProductOrderServiceImpl(
             page = page,
             size = size
         ).map { ProductOrderListRes(it) }
+    }
+
+    @Transactional
+    override fun updateProductOrderItemStatus(
+        req: ProductOrderItemStatusUpdateReq
+    ) {
+        if (req.pks.size != req.status.size)
+            throw ProductOrderItemStatusUpdateReqInvalid("]-----] ProductOrderServiceImpl::updateProductOrderItemStatus Pk, Status Size Not Equal(req: $req) [-----[")
+
+        val productOrderItems = productOrderItemRepositoryImpl.findAllByPkInAndActive(req.pks, true)
+            .associateBy { it.pk }
+
+        req.pks.forEachIndexed { index, pk ->
+            val productOrderItem = productOrderItems[pk]
+                ?: throw ProductOrderItemNotFoundException("]-----] ProductOrderServiceImpl::updateProductOrderItemStatus ProductOrderItem Not Found(pk: $pk) [-----[")
+
+            productOrderItem.status = req.status[index]
+        }
+
+        productOrderItemRepositoryImpl.saveAll(productOrderItems.map { it.value })
     }
 }
