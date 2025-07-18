@@ -3,7 +3,6 @@ package com.pinkcat.quick_reserve_seller.order.service
 import com.pinkcat.quick_reserve_seller.customer.model.CustomerEntity
 import com.pinkcat.quick_reserve_seller.order.dto.ProductOrderItemStatusUpdateReq
 import com.pinkcat.quick_reserve_seller.order.exception.ProductOrderItemNotFoundException
-import com.pinkcat.quick_reserve_seller.order.exception.ProductOrderItemStatusUpdateReqInvalid
 import com.pinkcat.quick_reserve_seller.order.model.ProductOrderEntity
 import com.pinkcat.quick_reserve_seller.order.model.ProductOrderItemEntity
 import com.pinkcat.quick_reserve_seller.order.model.ProductOrderItemStatus
@@ -107,21 +106,12 @@ class ProductOrderServiceImplTest {
     @Nested
     inner class UpdateProductOrderItemStatus {
         @Test
-        fun `pk, status 갯수가 다를 경우 에러`() {
-            val req = baseReq().copy(pks = emptyList())
-
-            assertThrows<ProductOrderItemStatusUpdateReqInvalid> {
-                productOrderService.updateProductOrderItemStatus(req)
-            }
-        }
-
-        @Test
         fun `pk에 해당하는 ProductOrderItem이 없을 경우 에러`() {
             val req = baseReq()
 
             every {
                 productOrderItemRepositoryImpl.findAllByPkInAndActive(
-                    pks = req.pks,
+                    pks = req.status.keys,
                     active = true
                 )
             } returns emptyList()
@@ -134,10 +124,10 @@ class ProductOrderServiceImplTest {
         @Test
         fun `Status Update 성공`() {
             val req = baseReq()
-            val productOrderItems = getProductOrderItems(pks = req.pks)
+            val productOrderItems = getProductOrderItems(pks = req.status.keys)
 
             every {
-                productOrderItemRepositoryImpl.findAllByPkInAndActive(req.pks, true)
+                productOrderItemRepositoryImpl.findAllByPkInAndActive(req.status.keys, true)
             } returns productOrderItems
             every {
                 productOrderItemRepositoryImpl.saveAll(any())
@@ -145,7 +135,7 @@ class ProductOrderServiceImplTest {
 
             productOrderService.updateProductOrderItemStatus(req)
 
-            verify(exactly = 1) { productOrderItemRepositoryImpl.findAllByPkInAndActive(req.pks, true) }
+            verify(exactly = 1) { productOrderItemRepositoryImpl.findAllByPkInAndActive(req.status.keys, true) }
             verify(exactly = 1) { productOrderItemRepositoryImpl.saveAll(any()) }
 
             productOrderItems.forEachIndexed { index, productOrderItem ->
@@ -155,14 +145,10 @@ class ProductOrderServiceImplTest {
     }
 
     fun baseReq(pks: List<Long> = listOf(1, 2)) = ProductOrderItemStatusUpdateReq(
-        pks = pks,
-        status = listOf(
-            ProductOrderItemStatus.COMPLETED,
-            ProductOrderItemStatus.CANCELLED
-        )
+        status = pks.associateWith { ProductOrderItemStatus.entries.toTypedArray().random() }
     )
 
-    fun getProductOrderItems(pks: List<Long> = listOf(1, 2)) = pks.map {
+    fun getProductOrderItems(pks: Collection<Long> = listOf(1, 2)) = pks.map {
         getProductOrderItem(
             productPk = 1L,
             productOrderItemPk = it

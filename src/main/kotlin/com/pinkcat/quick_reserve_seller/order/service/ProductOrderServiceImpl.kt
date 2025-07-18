@@ -33,17 +33,17 @@ class ProductOrderServiceImpl(
     override fun updateProductOrderItemStatus(
         req: ProductOrderItemStatusUpdateReq
     ) {
-        if (req.pks.size != req.status.size)
+        if (req.status.keys.size != req.status.size)
             throw ProductOrderItemStatusUpdateReqInvalid("]-----] ProductOrderServiceImpl::updateProductOrderItemStatus Pk, Status Size Not Equal(req: $req) [-----[")
 
-        val productOrderItems = productOrderItemRepositoryImpl.findAllByPkInAndActive(req.pks, true)
+        val productOrderItems = productOrderItemRepositoryImpl.findAllByPkInAndActive(req.status.keys, true)
             .associateBy { it.pk }
 
-        req.pks.forEachIndexed { index, pk ->
+        req.status.forEach { pk, status ->
             val productOrderItem = productOrderItems[pk]
                 ?: throw ProductOrderItemNotFoundException("]-----] ProductOrderServiceImpl::updateProductOrderItemStatus ProductOrderItem Not Found(pk: $pk) [-----[")
 
-            productOrderItem.status = req.status[index]
+            productOrderItem.status = status
         }
 
         productOrderItemRepositoryImpl.saveAll(productOrderItems.map { it.value })

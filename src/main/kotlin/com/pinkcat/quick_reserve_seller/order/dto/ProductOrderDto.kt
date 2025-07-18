@@ -36,6 +36,5 @@ data class CustomerView(
 }
 
 data class ProductOrderItemStatusUpdateReq(
-    val pks: List<Long>,
-    val status: List<ProductOrderItemStatus>,
+    val status: Map<Long, ProductOrderItemStatus>
 )

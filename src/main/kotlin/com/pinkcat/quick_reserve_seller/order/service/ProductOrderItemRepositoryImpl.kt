@@ -57,7 +57,7 @@ class ProductOrderItemRepositoryImpl(
         )
     }
 
-    fun findAllByPkInAndActive(pks: List<Long>, active: Boolean) =
+    fun findAllByPkInAndActive(pks: Collection<Long>, active: Boolean) =
         productOrderItemRepository.findAllByPkInAndActive(pks, active)
 
     fun saveAll(entities: Collection<ProductOrderItemEntity>) = productOrderItemRepository.saveAll(entities)
