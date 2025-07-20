@@ -17,7 +17,7 @@ class ProductOrderItemEntity(
     val quantity: Int,
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    val status: ProductOrderItemStatus
+    var status: ProductOrderItemStatus
 ) : BaseEntity()
 
 enum class ProductOrderItemStatus {

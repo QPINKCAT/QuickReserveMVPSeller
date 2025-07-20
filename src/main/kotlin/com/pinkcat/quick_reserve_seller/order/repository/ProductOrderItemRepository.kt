@@ -4,4 +4,5 @@ import com.pinkcat.quick_reserve_seller.common.repository.ActiveRepository
 import com.pinkcat.quick_reserve_seller.order.model.ProductOrderItemEntity
 
 interface ProductOrderItemRepository : ActiveRepository<ProductOrderItemEntity, Long> {
+    fun findAllByPkInAndActive(pks: Collection<Long>, active: Boolean): List<ProductOrderItemEntity>
 }
