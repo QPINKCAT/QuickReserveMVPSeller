@@ -15,6 +15,7 @@ public enum ErrorMessageCode {
 
     // Seller Exception - 80000
     SELLER_NOT_FOUND_EXCEPTION(80001, "seller_not_found_exception"),
+    SELLER_INACTIVE_EXCEPTION(80002, "seller inactive exception"),
 
     // Product Order Exception - 90000
     PRODUCT_ORDER_ITEM_NOT_FOUND_EXCEPTION(90001, "product_order_item_not_found_exception"),

@@ -6,4 +6,6 @@ import java.util.*
 
 interface SellerRepository : ActiveRepository<SellerEntity, Long> {
     fun findById(userId: String): Optional<SellerEntity>
+    fun findByPkAndActiveTrue(customerPk: Long): Optional<SellerEntity>
+
 }
