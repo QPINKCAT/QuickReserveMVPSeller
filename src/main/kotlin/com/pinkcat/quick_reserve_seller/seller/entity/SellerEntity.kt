@@ -14,9 +14,13 @@ import lombok.Data
 class SellerEntity(
         val id: String,
         val name: String,
-        val password: String,
+        var password: String,
         val phoneNumber: String,
         val email: String,
         @ManyToOne(fetch = FetchType.LAZY)
         val store: StoreEntity? = null
-) : BaseEntity()
+) : BaseEntity() {
+    fun updateEncodedPassword(newEncodedPassword: String) {
+        this.password = newEncodedPassword
+    }
+}

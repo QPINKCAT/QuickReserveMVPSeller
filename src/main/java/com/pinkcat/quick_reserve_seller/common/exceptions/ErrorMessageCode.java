@@ -16,11 +16,12 @@ public enum ErrorMessageCode {
     // Seller Exception - 80000
     SELLER_NOT_FOUND_EXCEPTION(80001, "seller_not_found_exception"),
     SELLER_INACTIVE_EXCEPTION(80002, "seller inactive exception"),
+    SELLER_INVALID_PASSWORD_EXCEPTION(80003, "seller invalid password"),
 
     // Product Order Exception - 90000
     PRODUCT_ORDER_ITEM_NOT_FOUND_EXCEPTION(90001, "product_order_item_not_found_exception"),
-    PRODUCT_ORDER_ITEM_STATUS_UPDATE_REQ_INVALID(90002, "product_order_item_status_update_req_invalid"),
-    ;
+    PRODUCT_ORDER_ITEM_STATUS_UPDATE_REQ_INVALID(90002, "product_order_item_status_update_req_invalid");
+
 
     private final int codeValue;
     private final String message;
