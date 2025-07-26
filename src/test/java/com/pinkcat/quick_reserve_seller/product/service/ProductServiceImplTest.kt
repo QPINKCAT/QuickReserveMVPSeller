@@ -70,6 +70,7 @@ class ProductServiceImplTest {
         )
 
         private fun getSeller(pk: Long = 1): SellerEntity = SellerEntity(
+            id = "seller",
             name = "seller",
             password = "password",
             phoneNumber = "01000000001",
@@ -208,6 +209,7 @@ class ProductServiceImplTest {
 
         fun makeProduct(productPk: Long = 1L, categoryPks: List<Long>): ProductEntity {
             val seller = SellerEntity(
+                id = "seller",
                 name = "seller",
                 password = "password",
                 phoneNumber = "01000000001",
@@ -258,6 +260,7 @@ class ProductServiceImplTest {
 
         fun makeProduct(productPk: Long = 1L, categoryPks: List<Long>): ProductEntity {
             val seller = SellerEntity(
+                id = "seller",
                 name = "seller",
                 password = "password",
                 phoneNumber = "01000000001",
@@ -488,6 +491,7 @@ class ProductServiceImplTest {
     )
 
     private fun getSeller(pk: Long = 1): SellerEntity = SellerEntity(
+        id = "seller",
         name = "seller",
         password = "password",
         phoneNumber = "01000000001",
