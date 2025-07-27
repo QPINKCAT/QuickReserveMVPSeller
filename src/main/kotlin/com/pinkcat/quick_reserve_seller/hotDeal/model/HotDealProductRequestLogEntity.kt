@@ -10,22 +10,22 @@ import lombok.Data
 @Entity
 @Data
 @Table(
-    name = "hot_deal_product_reqeust_log",
+        name = "hot_deal_product_reqeust_log",
 )
 class HotDealProductRequestLogEntity(
-    @ManyToOne(fetch = FetchType.LAZY)
-    val seller: SellerEntity?,
-    @ManyToOne(fetch = FetchType.LAZY)
-    val admin: AdminEntity?,
-    @ManyToOne(fetch = FetchType.LAZY)
-    val hotDeal: HotDealEntity,
-    @ManyToOne(fetch = FetchType.LAZY)
-    val product: ProductEntity,
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    var hotDealProductRequestStatus: HotDealProductRequestStatus,
-    @Column(length = 100)
-    var reason: String
+        @ManyToOne(fetch = FetchType.LAZY)
+        val seller: SellerEntity?,
+        @ManyToOne(fetch = FetchType.LAZY)
+        val admin: AdminEntity?,
+        @ManyToOne(fetch = FetchType.LAZY)
+        val hotDeal: HotDealEntity,
+        @ManyToOne(fetch = FetchType.LAZY)
+        val product: ProductEntity,
+        @Enumerated(EnumType.STRING)
+        @Column(length = 20)
+        var hotDealProductRequestStatus: HotDealProductRequestStatus,
+        @Column(length = 100)
+        var reason: String? = null
 ) : BaseEntity()
 
 enum class HotDealProductRequestStatus {

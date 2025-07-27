@@ -3,5 +3,5 @@ package com.pinkcat.quick_reserve_seller.hotDeal.respository
 import com.pinkcat.quick_reserve_seller.common.repository.ActiveRepository
 import com.pinkcat.quick_reserve_seller.hotDeal.model.HotDealProductRequestLogEntity
 
-interface HotDealProductRequestLogRepository : ActiveRepository<HotDealProductRequestLogEntity, Long> {
+interface HotDealProductRequestLogRepository : ActiveRepository<HotDealProductRequestLogEntity, Long>, HotDealProductRequestLogRepositoryCustom {
 }
