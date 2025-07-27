@@ -20,7 +20,11 @@ public enum ErrorMessageCode {
 
     // Product Order Exception - 90000
     PRODUCT_ORDER_ITEM_NOT_FOUND_EXCEPTION(90001, "product_order_item_not_found_exception"),
-    PRODUCT_ORDER_ITEM_STATUS_UPDATE_REQ_INVALID(90002, "product_order_item_status_update_req_invalid");
+    PRODUCT_ORDER_ITEM_STATUS_UPDATE_REQ_INVALID(90002, "product_order_item_status_update_req_invalid"),
+
+    // HotDeal Exception - 100000
+    HOTDEAL_NOT_FOUND_EXCEPTION(100001, "hodeal not found exception"),
+    HOTDEAL_ACCESS_DENIED_EXCEPTION(100002, "hotdeal access denied exception");
 
 
     private final int codeValue;
