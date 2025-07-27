@@ -2,10 +2,7 @@ package com.pinkcat.quick_reserve_seller.hotDeal.controller;
 
 
 import com.pinkcat.quick_reserve_seller.common.security.principal.UserPrincipal;
-import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestCreateRequestDto;
-import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestCreateResponseDto;
-import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestSearchCondition;
-import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestListGetResponseDto;
+import com.pinkcat.quick_reserve_seller.hotDeal.dto.*;
 import com.pinkcat.quick_reserve_seller.hotDeal.service.HotDealProductRequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,4 +38,12 @@ public class HotDealProductRequestController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> cancelHotDealProductRequest(
+            @RequestBody HotDealProductRequestCancelRequestDto dto,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        hotDealProductRequestService.cancelHotDealProductRequest(dto, user.getUser());
+        return ResponseEntity.ok().build();
+    }
 }

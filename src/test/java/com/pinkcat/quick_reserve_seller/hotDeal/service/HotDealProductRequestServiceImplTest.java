@@ -2,6 +2,7 @@ package com.pinkcat.quick_reserve_seller.hotDeal.service;
 
 import com.pinkcat.quick_reserve_seller.common.exceptions.ErrorMessageCode;
 import com.pinkcat.quick_reserve_seller.common.exceptions.PinkCatException;
+import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestCancelRequestDto;
 import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestCreateRequestDto;
 import com.pinkcat.quick_reserve_seller.hotDeal.log.HotDealProductRequestLogCommand;
 import com.pinkcat.quick_reserve_seller.hotDeal.log.HotDealProductRequestLogRecoder;
@@ -28,8 +29,6 @@ import static org.mockito.Mockito.*;
 class HotDealProductRequestServiceImplTest {
     @Mock
     private HotDealProductRequestRepository hotDealProductRequestRepository;
-    @Mock
-    private HotDealProductRequestLogRepository logRepository;
     @Mock
     private ProductRepository productRepository;
     @Mock
@@ -100,6 +99,7 @@ class HotDealProductRequestServiceImplTest {
 
         @Test
         void 실패_존재하지않는_hotdeal() {
+            // given
             ProductEntity product = mock(ProductEntity.class);
             when(productRepository.findById(1L)).thenReturn(Optional.of(product));
             when(hotDealRepository.findById(999L)).thenReturn(Optional.empty());
@@ -110,9 +110,11 @@ class HotDealProductRequestServiceImplTest {
                     .reason("test reason")
                     .build();
 
+            // when
             PinkCatException ex = assertThrows(PinkCatException.class,
                     () -> hotDealProductRequestService.createHotDealProductRequest(dto, mock(SellerEntity.class)));
 
+            // then
             assertEquals(ErrorMessageCode.HOTDEAL_NOT_FOUND_EXCEPTION, ex.getErrorMessageCode());
             verify(hotDealProductRequestRepository, never()).save(any(HotDealProductRequestEntity.class));
             verify(logRecorder, never()).record(any(HotDealProductRequestLogCommand.class));
@@ -120,6 +122,7 @@ class HotDealProductRequestServiceImplTest {
 
         @Test
         void 실패_중복_신청() {
+            // given
             ProductEntity product = mock(ProductEntity.class);
             HotDealEntity hotDeal = mock(HotDealEntity.class);
             when(productRepository.findById(1L)).thenReturn(Optional.of(product));
@@ -132,12 +135,123 @@ class HotDealProductRequestServiceImplTest {
                     .reason("test reason")
                     .build();
 
+            // when
             PinkCatException ex = assertThrows(PinkCatException.class,
                     () -> hotDealProductRequestService.createHotDealProductRequest(dto, mock(SellerEntity.class)));
 
+            // then
             assertEquals(ErrorMessageCode.HOTDEAL_PRODUCT_REQUEST_ALREADY_EXISTS_EXCEPTION, ex.getErrorMessageCode());
             verify(hotDealProductRequestRepository, never()).save(any(HotDealProductRequestEntity.class));
             verify(logRecorder, never()).record(any(HotDealProductRequestLogCommand.class));
         }
     }
+
+    @Nested
+    class CancelHotDealProductRequest {
+
+        @Test
+        void 성공() {
+            // given
+            Long productPk = 1L;
+            Long hotDealPk = 2L;
+            String reason = "취소 사유";
+
+            HotDealProductRequestCancelRequestDto dto = HotDealProductRequestCancelRequestDto.builder()
+                    .productPk(productPk)
+                    .hotDealPk(hotDealPk)
+                    .reason(reason)
+                    .build();
+
+            ProductEntity product = mock(ProductEntity.class);
+            HotDealEntity hotDeal = mock(HotDealEntity.class);
+            HotDealProductRequestEntity request = mock(HotDealProductRequestEntity.class);
+            SellerEntity seller = mock(SellerEntity.class);
+
+            when(productRepository.findById(productPk)).thenReturn(Optional.of(product));
+            when(hotDealRepository.findById(hotDealPk)).thenReturn(Optional.of(hotDeal));
+            when(hotDealProductRequestRepository.findByProductAndHotDeal(product, hotDeal)).thenReturn(Optional.of(request));
+
+            // when
+            assertDoesNotThrow(() -> hotDealProductRequestService.cancelHotDealProductRequest(dto, seller));
+
+            // then
+            verify(productRepository).findById(productPk);
+            verify(hotDealRepository).findById(hotDealPk);
+            verify(hotDealProductRequestRepository).findByProductAndHotDeal(product, hotDeal);
+            verify(hotDealProductRequestRepository).delete(request);
+            verify(logRecorder).record(any(HotDealProductRequestLogCommand.class));
+        }
+
+        @Test
+        void 실패_존재하지않는_product() {
+            // given
+            Long productPk = 999L;
+            HotDealProductRequestCancelRequestDto dto = HotDealProductRequestCancelRequestDto.builder()
+                    .productPk(productPk)
+                    .hotDealPk(1L)
+                    .reason("cancel reason")
+                    .build();
+
+            when(productRepository.findById(productPk)).thenReturn(Optional.empty());
+
+            // when
+            PinkCatException ex = assertThrows(PinkCatException.class,
+                    () -> hotDealProductRequestService.cancelHotDealProductRequest(dto, mock(SellerEntity.class)));
+
+            // then
+            assertEquals(ErrorMessageCode.PRODUCT_NOT_FOUND_EXCEPTION, ex.getErrorMessageCode());
+            verify(hotDealProductRequestRepository, never()).delete(any());
+            verify(logRecorder, never()).record(any());
+        }
+
+        @Test
+        void 실패_존재하지않는_hotdeal() {
+            // given
+            ProductEntity product = mock(ProductEntity.class);
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+            when(hotDealRepository.findById(999L)).thenReturn(Optional.empty());
+
+            HotDealProductRequestCancelRequestDto dto = HotDealProductRequestCancelRequestDto.builder()
+                    .productPk(1L)
+                    .hotDealPk(999L)
+                    .reason("cancel reason")
+                    .build();
+
+            // when
+            PinkCatException ex = assertThrows(PinkCatException.class,
+                    () -> hotDealProductRequestService.cancelHotDealProductRequest(dto, mock(SellerEntity.class)));
+
+            // then
+            assertEquals(ErrorMessageCode.HOTDEAL_NOT_FOUND_EXCEPTION, ex.getErrorMessageCode());
+            verify(hotDealProductRequestRepository, never()).delete(any());
+            verify(logRecorder, never()).record(any());
+        }
+
+        @Test
+        void 실패_신청내역없거나_이미처리됨() {
+            // given
+            ProductEntity product = mock(ProductEntity.class);
+            HotDealEntity hotDeal = mock(HotDealEntity.class);
+
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+            when(hotDealRepository.findById(2L)).thenReturn(Optional.of(hotDeal));
+            when(hotDealProductRequestRepository.findByProductAndHotDeal(product, hotDeal)).thenReturn(Optional.empty());
+
+            HotDealProductRequestCancelRequestDto dto = HotDealProductRequestCancelRequestDto.builder()
+                    .productPk(1L)
+                    .hotDealPk(2L)
+                    .reason("cancel reason")
+                    .build();
+
+            // when
+            PinkCatException ex = assertThrows(PinkCatException.class,
+                    () -> hotDealProductRequestService.cancelHotDealProductRequest(dto, mock(SellerEntity.class)));
+
+            // then
+            assertEquals(ErrorMessageCode.HOTDEAL_PRODUCT_REQUEST_NOT_FOUND_EXCEPTION, ex.getErrorMessageCode());
+            verify(hotDealProductRequestRepository, never()).delete(any());
+            verify(logRecorder, never()).record(any());
+        }
+    }
+
 }

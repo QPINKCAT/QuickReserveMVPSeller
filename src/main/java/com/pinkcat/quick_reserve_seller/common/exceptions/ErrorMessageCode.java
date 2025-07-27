@@ -27,7 +27,8 @@ public enum ErrorMessageCode {
     HOTDEAL_ACCESS_DENIED_EXCEPTION(100002, "hotdeal access denied exception"),
 
     // HotDeal Product Request Exception - 110000
-    HOTDEAL_PRODUCT_REQUEST_ALREADY_EXISTS_EXCEPTION(110001, "hotdeal product request exists exception");
+    HOTDEAL_PRODUCT_REQUEST_ALREADY_EXISTS_EXCEPTION(110001, "hotdeal product request exists exception"),
+    HOTDEAL_PRODUCT_REQUEST_NOT_FOUND_EXCEPTION(110002, "hotdeal product request not found exception");
 
 
     private final int codeValue;
