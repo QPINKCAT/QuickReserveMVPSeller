@@ -2,9 +2,12 @@ package com.pinkcat.quick_reserve_seller.hotDeal.controller;
 
 
 import com.pinkcat.quick_reserve_seller.common.security.principal.UserPrincipal;
+import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestCreateRequestDto;
+import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestCreateResponseDto;
 import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestSearchCondition;
 import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealProductRequestListGetResponseDto;
 import com.pinkcat.quick_reserve_seller.hotDeal.service.HotDealProductRequestService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,5 +32,13 @@ public class HotDealProductRequestController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping
+    public ResponseEntity<HotDealProductRequestCreateResponseDto> createHotDealProductRequest(
+            @RequestBody @Valid HotDealProductRequestCreateRequestDto dto,
+            @AuthenticationPrincipal UserPrincipal user
+    ) {
+        HotDealProductRequestCreateResponseDto response = hotDealProductRequestService.createHotDealProductRequest(dto, user.getUser());
+        return ResponseEntity.ok(response);
+    }
 
 }
