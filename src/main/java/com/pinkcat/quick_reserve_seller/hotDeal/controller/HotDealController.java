@@ -1,8 +1,8 @@
-package com.pinkcat.quick_reserve_seller.hotdeal.controller;
+package com.pinkcat.quick_reserve_seller.hotDeal.controller;
 
-import com.pinkcat.quick_reserve_seller.hotdeal.dto.HotDealGetResponseDto;
-import com.pinkcat.quick_reserve_seller.hotdeal.dto.HotDealListGetResponseDto;
-import com.pinkcat.quick_reserve_seller.hotdeal.service.HotDealService;
+import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealGetResponseDto;
+import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealListGetResponseDto;
+import com.pinkcat.quick_reserve_seller.hotDeal.service.HotDealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

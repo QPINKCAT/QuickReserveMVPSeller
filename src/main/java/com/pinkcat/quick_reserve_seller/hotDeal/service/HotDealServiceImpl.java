@@ -1,12 +1,12 @@
-package com.pinkcat.quick_reserve_seller.hotdeal.service;
+package com.pinkcat.quick_reserve_seller.hotDeal.service;
 
 import com.pinkcat.quick_reserve_seller.common.enums.HotDealPublicStatusEnum;
 import com.pinkcat.quick_reserve_seller.common.exceptions.ErrorMessageCode;
 import com.pinkcat.quick_reserve_seller.common.exceptions.PinkCatException;
 import com.pinkcat.quick_reserve_seller.hotDeal.model.HotDealEntity;
 import com.pinkcat.quick_reserve_seller.hotDeal.respository.HotDealRepository;
-import com.pinkcat.quick_reserve_seller.hotdeal.dto.HotDealGetResponseDto;
-import com.pinkcat.quick_reserve_seller.hotdeal.dto.HotDealListGetResponseDto;
+import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealGetResponseDto;
+import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealListGetResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

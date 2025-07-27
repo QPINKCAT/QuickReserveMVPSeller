@@ -1,4 +1,4 @@
-package com.pinkcat.quick_reserve_seller.hotdeal.dto;
+package com.pinkcat.quick_reserve_seller.hotDeal.dto;
 
 import com.pinkcat.quick_reserve_seller.common.enums.HotDealPublicStatusEnum;
 import lombok.*;
