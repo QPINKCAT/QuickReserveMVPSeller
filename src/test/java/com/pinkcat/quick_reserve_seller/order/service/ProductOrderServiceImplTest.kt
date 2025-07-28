@@ -20,8 +20,8 @@ import org.springframework.data.domain.PageRequest
 import java.time.Instant
 
 class ProductOrderServiceImplTest {
-    private val productOrderItemRepositoryImpl = mockk<ProductOrderItemRepositoryImpl>()
-    private val productOrderService = ProductOrderServiceImpl(productOrderItemRepositoryImpl)
+    private val productOrderItemRepositoryExtends = mockk<ProductOrderItemRepositoryExtends>()
+    private val productOrderService = ProductOrderServiceImpl(productOrderItemRepositoryExtends)
 
     @Nested
     inner class FindProductOrderList {
@@ -33,7 +33,7 @@ class ProductOrderServiceImplTest {
             val size = 10
 
             every {
-                productOrderItemRepositoryImpl.findALlByProductPkAndProductStatusInAndActive(
+                productOrderItemRepositoryExtends.findALlByProductPkAndProductStatusInAndActive(
                     productPk = productPk,
                     productStatusList = status,
                     active = true,
@@ -50,7 +50,7 @@ class ProductOrderServiceImplTest {
             )
 
             verify(exactly = 1) {
-                productOrderItemRepositoryImpl.findALlByProductPkAndProductStatusInAndActive(
+                productOrderItemRepositoryExtends.findALlByProductPkAndProductStatusInAndActive(
                     productPk = productPk,
                     productStatusList = status,
                     active = true,
@@ -69,7 +69,7 @@ class ProductOrderServiceImplTest {
             val productOrderItems = getProductOrderItems()
 
             every {
-                productOrderItemRepositoryImpl.findALlByProductPkAndProductStatusInAndActive(
+                productOrderItemRepositoryExtends.findALlByProductPkAndProductStatusInAndActive(
                     productPk = productPk,
                     productStatusList = status,
                     active = true,
@@ -110,7 +110,7 @@ class ProductOrderServiceImplTest {
             val req = baseReq()
 
             every {
-                productOrderItemRepositoryImpl.findAllByPkInAndActive(
+                productOrderItemRepositoryExtends.findAllByPkInAndActive(
                     pks = req.status.keys,
                     active = true
                 )
@@ -127,16 +127,16 @@ class ProductOrderServiceImplTest {
             val productOrderItems = getProductOrderItems(pks = req.status.keys)
 
             every {
-                productOrderItemRepositoryImpl.findAllByPkInAndActive(req.status.keys, true)
+                productOrderItemRepositoryExtends.findAllByPkInAndActive(req.status.keys, true)
             } returns productOrderItems
             every {
-                productOrderItemRepositoryImpl.saveAll(any())
+                productOrderItemRepositoryExtends.saveAll(any())
             } returnsArgument 0
 
             productOrderService.updateProductOrderItemStatus(req)
 
-            verify(exactly = 1) { productOrderItemRepositoryImpl.findAllByPkInAndActive(req.status.keys, true) }
-            verify(exactly = 1) { productOrderItemRepositoryImpl.saveAll(any()) }
+            verify(exactly = 1) { productOrderItemRepositoryExtends.findAllByPkInAndActive(req.status.keys, true) }
+            verify(exactly = 1) { productOrderItemRepositoryExtends.saveAll(any()) }
 
             productOrderItems.forEachIndexed { index, productOrderItem ->
                 assertThat(productOrderItem.status).isEqualTo(productOrderItem.status)

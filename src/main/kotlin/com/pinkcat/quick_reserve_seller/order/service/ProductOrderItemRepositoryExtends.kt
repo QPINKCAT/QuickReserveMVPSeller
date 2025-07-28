@@ -14,7 +14,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 
 @Component
-class ProductOrderItemRepositoryImpl(
+class ProductOrderItemRepositoryExtends(
     private val productOrderItemRepository: ProductOrderItemRepository,
 
     private val jpaQueryFactory: JPAQueryFactory

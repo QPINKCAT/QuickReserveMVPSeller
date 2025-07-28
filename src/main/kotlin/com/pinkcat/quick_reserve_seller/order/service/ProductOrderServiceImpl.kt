@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ProductOrderServiceImpl(
-    private val productOrderItemRepositoryImpl: ProductOrderItemRepositoryImpl
+    private val productOrderItemRepositoryExtends: ProductOrderItemRepositoryExtends
 ) : ProductOrderService {
     @Transactional(readOnly = true)
     override fun findProductOrderList(
@@ -20,7 +20,7 @@ class ProductOrderServiceImpl(
         page: Int,
         size: Int
     ): Page<ProductOrderListRes> {
-        return productOrderItemRepositoryImpl.findALlByProductPkAndProductStatusInAndActive(
+        return productOrderItemRepositoryExtends.findALlByProductPkAndProductStatusInAndActive(
             productPk = productPk,
             productStatusList = status,
             active = true,
@@ -36,7 +36,7 @@ class ProductOrderServiceImpl(
         if (req.status.keys.size != req.status.size)
             throw ProductOrderItemStatusUpdateReqInvalid("]-----] ProductOrderServiceImpl::updateProductOrderItemStatus Pk, Status Size Not Equal(req: $req) [-----[")
 
-        val productOrderItems = productOrderItemRepositoryImpl.findAllByPkInAndActive(req.status.keys, true)
+        val productOrderItems = productOrderItemRepositoryExtends.findAllByPkInAndActive(req.status.keys, true)
             .associateBy { it.pk }
 
         req.status.forEach { pk, status ->
@@ -46,6 +46,6 @@ class ProductOrderServiceImpl(
             productOrderItem.status = status
         }
 
-        productOrderItemRepositoryImpl.saveAll(productOrderItems.map { it.value })
+        productOrderItemRepositoryExtends.saveAll(productOrderItems.map { it.value })
     }
 }
