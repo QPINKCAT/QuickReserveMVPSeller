@@ -8,5 +8,7 @@ public interface AuthService {
 
     LoginResponseDto login(LoginRequestDto dto);
 
-    void logout(String accessToken);
+    void logout(Long userPk);
+
+    RefreshTokenResponseDto refreshAccessToken(HttpServletRequest request, HttpServletResponse response);
 }

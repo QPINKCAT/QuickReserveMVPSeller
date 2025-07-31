@@ -40,14 +40,18 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user.getPk());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getPk());
 
-        refreshTokenStore.save(user.getId(), refreshToken);
+        refreshTokenStore.save(user.getPk(), refreshToken);
+
+        Cookie rtCookie = refreshTokenCookieProvider.createRefreshTokenCookie(refreshToken);
+        response.addCookie(rtCookie);
+
         log.info("[로그인 성공] userId={}", user.getId());
         return LoginResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
     @Override
-    public void logout(String userId) {
-        refreshTokenStore.delete(userId);
-        log.info("[로그아웃 성공] userId={}", userId);
+    public void logout(Long userPk) {
+        refreshTokenStore.delete(userPk);
+        log.info("[로그아웃 성공] userId={}", userPk);
     }
 }

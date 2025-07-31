@@ -12,25 +12,25 @@ import java.time.Duration;
 public class RefreshTokenStore {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private static final String PREFIX = "RT:ADMIN:";
+    private static final String PREFIX = "RT:SELLER:";
 
     @Value("${jwt.refresh-expiration}")
     private long refreshExpiration;
 
-    public void save(String userId, String refreshToken) {
-        redisTemplate.opsForValue().set(PREFIX + userId, refreshToken, Duration.ofDays(refreshExpiration));
+    public void save(Long userPk, String refreshToken) {
+        redisTemplate.opsForValue().set(PREFIX + userPk, refreshToken, Duration.ofDays(refreshExpiration));
     }
 
-    public String get(String userId) {
-        return redisTemplate.opsForValue().get(PREFIX + userId);
+    public String get(Long userPk) {
+        return redisTemplate.opsForValue().get(PREFIX + userPk);
     }
 
-    public void delete(String userId) {
-        redisTemplate.delete(PREFIX + userId);
+    public void delete(Long userPk) {
+        redisTemplate.delete(PREFIX + userPk);
     }
 
-    public boolean isValid(String userId, String refreshToken) {
-        String stored = get(userId);
+    public boolean isValid(Long userPk, String refreshToken) {
+        String stored = get(userPk);
         return refreshToken.equals(stored);
     }
 }
