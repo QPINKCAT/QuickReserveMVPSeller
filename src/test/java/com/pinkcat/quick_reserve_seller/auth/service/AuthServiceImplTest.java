@@ -33,6 +33,8 @@ class AuthServiceImplTest {
     private JwtTokenProvider jwtTokenProvider;
     @Mock
     private RefreshTokenStore refreshTokenStore;
+    @Mock
+    private RefreshTokenCookieProvider refreshTokenCookieProvider;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -134,6 +136,70 @@ class AuthServiceImplTest {
 
             // then
             verify(refreshTokenStore).delete(userId);
+        }
+    }
+
+    @Nested
+    class RefreshTokenTest {
+
+        @Test
+        void 성공() {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            Cookie cookie = new Cookie("refresh_token", "test-refresh-token");
+            request.setCookies(cookie);
+
+            when(jwtTokenProvider.validateToken("test-refresh-token")).thenReturn(true);
+            when(jwtTokenProvider.getUserPk("test-refresh-token")).thenReturn(1L);
+            when(refreshTokenStore.isValid(1L, "test-refresh-token")).thenReturn(true);
+            when(jwtTokenProvider.createAccessToken(1L)).thenReturn("new-access-token");
+            when(jwtTokenProvider.createRefreshToken(1L)).thenReturn("new-refresh-token");
+            Cookie newCookie = new Cookie("refresh_token", "new-refresh-token");
+            when(refreshTokenCookieProvider.createRefreshTokenCookie("new-refresh-token")).thenReturn(newCookie);
+
+            RefreshTokenResponseDto result = authService.refreshAccessToken(request, response);
+
+            assertEquals("new-access-token", result.getAccessToken());
+            assertNotNull(response.getCookie("refresh_token"));
+            assertEquals("new-refresh-token", response.getCookie("refresh_token").getValue());
+        }
+
+        @Test
+        void 실패_쿠키없음() {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            MockHttpServletResponse response = new MockHttpServletResponse();
+
+            ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                    () -> authService.refreshAccessToken(request, response));
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+        }
+
+        @Test
+        void 실패_토큰유효하지않음() {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            request.setCookies(new Cookie("refresh_token", "invalid-refresh-token"));
+
+            when(jwtTokenProvider.validateToken("invalid-refresh-token")).thenReturn(false);
+
+            ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                    () -> authService.refreshAccessToken(request, response));
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
+        }
+
+        @Test
+        void 실패_저장된토큰과불일치() {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            request.setCookies(new Cookie("refresh_token", "invalid-refresh-token"));
+
+            when(jwtTokenProvider.validateToken("invalid-refresh-token")).thenReturn(true);
+            when(jwtTokenProvider.getUserPk("invalid-refresh-token")).thenReturn(1L);
+            when(refreshTokenStore.isValid(1L, "invalid-refresh-token")).thenReturn(false);
+
+            ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                    () -> authService.refreshAccessToken(request, response));
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
         }
     }
 }

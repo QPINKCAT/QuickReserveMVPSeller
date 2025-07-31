@@ -30,4 +30,12 @@ public class AuthController {
         authService.logout(user.getUserPk());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponseDto> refreshAccessToken(
+            HttpServletRequest request
+            , HttpServletResponse response
+    ) {
+        return ResponseEntity.ok(authService.refreshAccessToken(request, response));
+    }
 }

@@ -21,6 +21,7 @@ public class AuthServiceImpl implements AuthService {
     private final SellerRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenCookieProvider refreshTokenCookieProvider;
     private final RefreshTokenStore refreshTokenStore;
 
     @Override
@@ -53,5 +54,39 @@ public class AuthServiceImpl implements AuthService {
     public void logout(Long userPk) {
         refreshTokenStore.delete(userPk);
         log.info("[로그아웃 성공] userId={}", userPk);
+    }
+
+    @Override
+    public RefreshTokenResponseDto refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie rtCookie = WebUtils.getCookie(request, "refresh_token");
+        if (rtCookie == null) {
+            log.warn("[토큰 재발급 실패] RefreshToken 쿠키가 존재하지 않습니다.");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "RefreshToken 쿠키가 존재하지 않습니다.");
+        }
+
+        String refreshToken = rtCookie.getValue();
+
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            log.warn("[토큰 재발급 실패] RefreshToken이 유효하지 않습니다.");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "RefreshToken이 유효하지 않습니다.");
+        }
+
+        Long userPk = jwtTokenProvider.getUserPk(refreshToken);
+
+        if (!refreshTokenStore.isValid(userPk, refreshToken)) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "RefreshToken 정보가 일치하지 않습니다.");
+        }
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(userPk);
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(userPk);
+
+        refreshTokenStore.save(userPk, newRefreshToken);
+        Cookie newRtCookie = refreshTokenCookieProvider.createRefreshTokenCookie(newRefreshToken);
+        response.addCookie(newRtCookie);
+
+        return new RefreshTokenResponseDto(newAccessToken);
     }
 }
