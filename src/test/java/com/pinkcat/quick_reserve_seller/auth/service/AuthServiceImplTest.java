@@ -2,11 +2,14 @@ package com.pinkcat.quick_reserve_seller.auth.service;
 
 import com.pinkcat.quick_reserve_seller.auth.dto.LoginRequestDto;
 import com.pinkcat.quick_reserve_seller.auth.dto.LoginResponseDto;
+import com.pinkcat.quick_reserve_seller.auth.dto.RefreshTokenResponseDto;
 import com.pinkcat.quick_reserve_seller.common.redis.RefreshTokenStore;
 import com.pinkcat.quick_reserve_seller.common.security.jwt.JwtTokenProvider;
+import com.pinkcat.quick_reserve_seller.common.security.jwt.RefreshTokenCookieProvider;
 import com.pinkcat.quick_reserve_seller.seller.entity.SellerEntity;
 import com.pinkcat.quick_reserve_seller.seller.repository.SellerRepository;
 import com.pinkcat.quick_reserve_seller.store.entity.StoreEntity;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -62,18 +67,23 @@ class AuthServiceImplTest {
         void 성공() {
             // given
             LoginRequestDto loginDto = new LoginRequestDto("testuser", "rawpass");
+            MockHttpServletResponse response = new MockHttpServletResponse();
+
             when(userRepository.findById("testuser")).thenReturn(Optional.of(userEntity));
             when(passwordEncoder.matches("rawpass", "encoded_pass")).thenReturn(true);
             when(jwtTokenProvider.createAccessToken(1L)).thenReturn("access-token");
             when(jwtTokenProvider.createRefreshToken(1L)).thenReturn("refresh-token");
+            Cookie mockCookie = new Cookie("refresh_token", "test-refresh-token");
+            when(refreshTokenCookieProvider.createRefreshTokenCookie("refresh-token")).thenReturn(mockCookie);
 
             // when
-            LoginResponseDto result = authService.login(loginDto);
+            LoginResponseDto result = authService.login(loginDto, response);
 
             // then
             assertEquals("access-token", result.getAccessToken());
-            assertEquals("refresh-token", result.getRefreshToken());
-            verify(refreshTokenStore).save("testuser", "refresh-token");
+            assertNotNull(response.getCookie("refresh_token"));
+            assertEquals("test-refresh-token", response.getCookie("refresh_token").getValue());
+            verify(refreshTokenStore).save(1L, "refresh-token");
         }
 
         @Test
@@ -84,7 +94,7 @@ class AuthServiceImplTest {
 
             // when
             ResponseStatusException ex =
-                    assertThrows(ResponseStatusException.class, () -> authService.login(loginDto));
+                    assertThrows(ResponseStatusException.class, () -> authService.login(loginDto, new MockHttpServletResponse()));
 
             // then
             assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
@@ -99,7 +109,7 @@ class AuthServiceImplTest {
 
             // when
             ResponseStatusException ex =
-                    assertThrows(ResponseStatusException.class, () -> authService.login(loginDto));
+                    assertThrows(ResponseStatusException.class, () -> authService.login(loginDto, new MockHttpServletResponse()));
 
             // then
             assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
@@ -115,7 +125,7 @@ class AuthServiceImplTest {
 
             // when
             ResponseStatusException ex =
-                    assertThrows(ResponseStatusException.class, () -> authService.login(loginDto));
+                    assertThrows(ResponseStatusException.class, () -> authService.login(loginDto, new MockHttpServletResponse()));
 
             // then
             assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusCode());
@@ -129,13 +139,13 @@ class AuthServiceImplTest {
         @Test
         void 성공() {
             // given
-            String userId = "testuser";
+            Long userPk = 1L;
 
             // when
-            assertDoesNotThrow(() -> authService.logout(userId));
+            assertDoesNotThrow(() -> authService.logout(userPk));
 
             // then
-            verify(refreshTokenStore).delete(userId);
+            verify(refreshTokenStore).delete(userPk);
         }
     }
 

@@ -2,16 +2,22 @@ package com.pinkcat.quick_reserve_seller.auth.service;
 
 import com.pinkcat.quick_reserve_seller.auth.dto.LoginRequestDto;
 import com.pinkcat.quick_reserve_seller.auth.dto.LoginResponseDto;
+import com.pinkcat.quick_reserve_seller.auth.dto.RefreshTokenResponseDto;
 import com.pinkcat.quick_reserve_seller.common.redis.RefreshTokenStore;
 import com.pinkcat.quick_reserve_seller.common.security.jwt.JwtTokenProvider;
+import com.pinkcat.quick_reserve_seller.common.security.jwt.RefreshTokenCookieProvider;
 import com.pinkcat.quick_reserve_seller.seller.entity.SellerEntity;
 import com.pinkcat.quick_reserve_seller.seller.repository.SellerRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.WebUtils;
 
 @Slf4j
 @Service
@@ -25,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenStore refreshTokenStore;
 
     @Override
-    public LoginResponseDto login(LoginRequestDto dto) {
+    public LoginResponseDto login(LoginRequestDto dto, HttpServletResponse response) {
         SellerEntity user =
                 userRepository
                         .findById(dto.getUserId())
@@ -47,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
         response.addCookie(rtCookie);
 
         log.info("[로그인 성공] userId={}", user.getId());
-        return LoginResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+        return new LoginResponseDto(accessToken);
     }
 
     @Override
