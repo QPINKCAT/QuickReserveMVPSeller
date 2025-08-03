@@ -22,6 +22,7 @@ class ProductEntity(
     var stock: Int?,
     val avgRating: Double,
     val reviewCount: Int,
+    @Enumerated(EnumType.STRING)
     var status: ProductStatus,
 
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
