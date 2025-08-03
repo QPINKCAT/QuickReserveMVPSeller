@@ -3,10 +3,12 @@ package com.pinkcat.quick_reserve_seller.auth.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
-public class LoginResponseDto {
-  private String accessToken;
+@NoArgsConstructor
+public class RefreshTokenResponseDto {
+    private String accessToken;
 }

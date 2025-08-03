@@ -2,16 +2,22 @@ package com.pinkcat.quick_reserve_seller.auth.service;
 
 import com.pinkcat.quick_reserve_seller.auth.dto.LoginRequestDto;
 import com.pinkcat.quick_reserve_seller.auth.dto.LoginResponseDto;
+import com.pinkcat.quick_reserve_seller.auth.dto.RefreshTokenResponseDto;
 import com.pinkcat.quick_reserve_seller.common.redis.RefreshTokenStore;
 import com.pinkcat.quick_reserve_seller.common.security.jwt.JwtTokenProvider;
+import com.pinkcat.quick_reserve_seller.common.security.jwt.RefreshTokenCookieProvider;
 import com.pinkcat.quick_reserve_seller.seller.entity.SellerEntity;
 import com.pinkcat.quick_reserve_seller.seller.repository.SellerRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.WebUtils;
 
 @Slf4j
 @Service
@@ -21,10 +27,11 @@ public class AuthServiceImpl implements AuthService {
     private final SellerRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenCookieProvider refreshTokenCookieProvider;
     private final RefreshTokenStore refreshTokenStore;
 
     @Override
-    public LoginResponseDto login(LoginRequestDto dto) {
+    public LoginResponseDto login(LoginRequestDto dto, HttpServletResponse response) {
         SellerEntity user =
                 userRepository
                         .findById(dto.getUserId())
@@ -40,14 +47,52 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user.getPk());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getPk());
 
-        refreshTokenStore.save(user.getId(), refreshToken);
+        refreshTokenStore.save(user.getPk(), refreshToken);
+
+        Cookie rtCookie = refreshTokenCookieProvider.createRefreshTokenCookie(refreshToken);
+        response.addCookie(rtCookie);
+
         log.info("[로그인 성공] userId={}", user.getId());
-        return LoginResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+        return new LoginResponseDto(accessToken);
     }
 
     @Override
-    public void logout(String userId) {
-        refreshTokenStore.delete(userId);
-        log.info("[로그아웃 성공] userId={}", userId);
+    public void logout(Long userPk) {
+        refreshTokenStore.delete(userPk);
+        log.info("[로그아웃 성공] userId={}", userPk);
+    }
+
+    @Override
+    public RefreshTokenResponseDto refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        Cookie rtCookie = WebUtils.getCookie(request, "refresh_token");
+        if (rtCookie == null) {
+            log.warn("[토큰 재발급 실패] RefreshToken 쿠키가 존재하지 않습니다.");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "RefreshToken 쿠키가 존재하지 않습니다.");
+        }
+
+        String refreshToken = rtCookie.getValue();
+
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            log.warn("[토큰 재발급 실패] RefreshToken이 유효하지 않습니다.");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "RefreshToken이 유효하지 않습니다.");
+        }
+
+        Long userPk = jwtTokenProvider.getUserPk(refreshToken);
+
+        if (!refreshTokenStore.isValid(userPk, refreshToken)) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "RefreshToken 정보가 일치하지 않습니다.");
+        }
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(userPk);
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(userPk);
+
+        refreshTokenStore.save(userPk, newRefreshToken);
+        Cookie newRtCookie = refreshTokenCookieProvider.createRefreshTokenCookie(newRefreshToken);
+        response.addCookie(newRtCookie);
+
+        return new RefreshTokenResponseDto(newAccessToken);
     }
 }
