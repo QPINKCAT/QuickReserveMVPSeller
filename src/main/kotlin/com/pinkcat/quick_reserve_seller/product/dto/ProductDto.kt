@@ -3,20 +3,32 @@ package com.pinkcat.quick_reserve_seller.product.dto
 import com.pinkcat.quick_reserve_seller.category.dto.CategoryRes
 import com.pinkcat.quick_reserve_seller.customer.model.CustomerEntity
 import com.pinkcat.quick_reserve_seller.discount.dto.DiscountDto
+import com.pinkcat.quick_reserve_seller.discount.dto.DiscountReq
 import com.pinkcat.quick_reserve_seller.hotDeal.dto.HotDealRes
 import com.pinkcat.quick_reserve_seller.product.entity.ProductEntity
 import com.pinkcat.quick_reserve_seller.product.entity.ProductStatus
 import com.pinkcat.quick_reserve_seller.review.entity.CustomerProductReview
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.Pattern
 import kotlin.math.round
 
 data class ProductReq(
+    @NotEmpty
     val categoryPks: List<Long>,
+    @field:Pattern(regexp = "^[A-Za-z0-9가-힣][A-Za-z0-9가-힣 ]{0,29}\$")
     val name: String,
+    @field:NotBlank
     val description: String,
+    @field:Min(1)
     val price: Int,
+    @field:Min(0)
     val stock: Int?,
     val status: ProductStatus,
-    val discount: DiscountDto?,
+    @field:Valid
+    val discount: DiscountReq?,
 )
 
 data class ProductListRes(

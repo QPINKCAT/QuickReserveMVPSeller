@@ -1,9 +1,12 @@
 package com.pinkcat.quick_reserve_seller.product
 
+import com.pinkcat.quick_reserve_seller.common.security.principal.UserPrincipal
 import com.pinkcat.quick_reserve_seller.product.dto.*
 import com.pinkcat.quick_reserve_seller.product.service.ProductService
+import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -12,8 +15,11 @@ class ProductController(
     private val productService: ProductService
 ) {
     @PostMapping
-    fun createProduct(sellerPk: Long, req: ProductReq) {
-        return productService.createProduct(sellerPk, req)
+    fun createProduct(
+        @AuthenticationPrincipal user: UserPrincipal,
+        @RequestBody @Valid req: ProductReq,
+    ) {
+        return productService.createProduct(user.userPk, req)
     }
 
     @GetMapping("")
