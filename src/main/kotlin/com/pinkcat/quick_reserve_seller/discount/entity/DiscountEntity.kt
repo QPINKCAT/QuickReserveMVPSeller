@@ -3,20 +3,21 @@ package com.pinkcat.quick_reserve_seller.discount.entity
 import com.pinkcat.quick_reserve_seller.common.model.BaseEntity
 import com.pinkcat.quick_reserve_seller.discount.dto.DiscountReq
 import com.pinkcat.quick_reserve_seller.product.entity.ProductEntity
-import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
-import jakarta.persistence.OneToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import lombok.Data
 
 @Entity
 @Data
 @Table(name = "discount")
+@AttributeOverride(name = "pk", column = Column(name = "discount_pk"))
 class DiscountEntity(
     @OneToOne(fetch = FetchType.LAZY)
     val product: ProductEntity,
+    @Column(name = "discount_price")
     var discountPrice: Int,
+    @Column(name = "discount_start_at")
     var startAt: Long?,
+    @Column(name = "discount_end_at")
     var endAt: Long?
 ) : BaseEntity() {
     constructor(product: ProductEntity, dto: DiscountReq) : this(
