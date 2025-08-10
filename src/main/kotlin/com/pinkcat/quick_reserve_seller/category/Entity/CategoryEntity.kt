@@ -7,10 +7,13 @@ import lombok.Data
 @Entity
 @Data
 @Table(name = "category")
+@AttributeOverride(name = "pk", column = Column(name = "category_pk"))
 class CategoryEntity(
+    @Column(name = "category_name", length = 100)
     val categoryName: String,
+    @Column(name = "category_order")
     val categoryOrder: Int,
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "teop_category_pk")
+    @JoinColumn(name = "top_category_pk")
     val topCategory: CategoryEntity?,
 ) : BaseEntity()
