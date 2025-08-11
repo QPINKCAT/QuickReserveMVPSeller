@@ -13,16 +13,24 @@ import org.hibernate.annotations.BatchSize
 @Entity
 @Data
 @Table(name = "product")
+@AttributeOverride(name = "pk", column = Column(name = "product_pk"))
 class ProductEntity(
     @ManyToOne(fetch = FetchType.LAZY)
     val seller: SellerEntity,
+    @Column(length = 30, name = "product_name")
     var name: String,
+    @Column(columnDefinition = "text", name = "product_description")
     var description: String,
+    @Column(name = "product_price")
     var price: Int,
+    @Column(name = "product_stock")
     var stock: Int?,
+    @Column(name = "product_avg_rating")
     val avgRating: Double,
+    @Column(name = "product_review_count")
     val reviewCount: Int,
     @Enumerated(EnumType.STRING)
+    @Column(length = 30, name = "product_status")
     var status: ProductStatus,
 
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)

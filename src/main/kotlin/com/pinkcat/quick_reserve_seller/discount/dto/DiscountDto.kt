@@ -1,6 +1,7 @@
 package com.pinkcat.quick_reserve_seller.discount.dto
 
 import com.pinkcat.quick_reserve_seller.discount.entity.DiscountEntity
+import jakarta.validation.constraints.Min
 
 open class DiscountDto(
     val price: Int,
@@ -13,3 +14,10 @@ open class DiscountDto(
         endAt = discount.endAt,
     )
 }
+
+data class DiscountReq(
+    @Min(1)
+    val price: Int,
+    val startAt: Long?,
+    val endAt: Long?,
+)
